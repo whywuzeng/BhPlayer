@@ -9,6 +9,7 @@
 #include "include/libavutil/avutil.h"
 #include "include/libavutil/frame.h"
 #include "include/libavutil/imgutils.h"
+#include "include/libswscale/swscale.h"
 #include <android/native_window_jni.h>
 #include <android/native_window.h>
 #include <android/log.h>
@@ -107,7 +108,54 @@ JNIEXPORT void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_render
     av_image_fill_arrays(RGBFrame->data,RGBFrame->linesize,buffer,AV_PIX_FMT_RGBA,avCodecContext->width,avCodecContext->height,1);
 
 
+    struct SwsContext *const pSwsContext = sws_getContext(avCodecContext->width, avCodecContext->height, avCodecContext->get_format
+                , avCodecContext->width
+                , avCodecContext->height
+                , AV_PIX_FMT_RGBA
+                , SWS_BILINEAR
+                , NULL
+                , NULL
+                , NULL);
 
+    int frameFinished;
+    AVPacket packet;
+
+    while (av_read_frame(pContext,&packet)>=0)
+    {
+        if (packet.stream_index==videoStream)
+        {
+            avcodec_decode_video2(avCodecContext,pFrame,&frameFinished,packet);
+
+            if (frameFinished){
+                ANativeWindow_lock(pWindow,&windowBuffer,0);
+                sws_scale(pSwsContext,(uint8_t const *const *)pFrame->data,pFrame->linesize,0,avCodecContext->height,RGBFrame->data,RGBFrame->linesize);
+                // 获取stride
+                uint8_t *dst = (uint8_t *) windowBuffer.bits;
+                int dstStride = windowBuffer.stride * 4;
+                uint8_t *src = (RGBFrame->data[0]);
+                int srcStride = RGBFrame->linesize[0];
+
+                // 由于window的stride和帧的stride不同,因此需要逐行复制
+                int h;
+                for (h = 0; h < height; h++) {
+                    memcpy(dst + h * dstStride, src + h * srcStride, srcStride);
+                }
+
+                ANativeWindow_unlockAndPost(pWindow);
+                usleep(1000*16);
+            }
+        }
+
+        av_packet_unref(&packet);
+    }
+
+    free(buffer);
     av_frame_free(&RGBFrame);
     av_frame_free(&pFrame);
+    avcodec_close(avCodecContext);
+
+    avformat_close_input(&pContext);
+
+    (*env)->ReleaseStringUTFChars(env,jstring,inputPath);
+    return;
 }
