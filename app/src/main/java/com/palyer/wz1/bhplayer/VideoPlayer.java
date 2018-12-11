@@ -11,8 +11,12 @@ import android.view.Surface;
  */
 public class VideoPlayer {
     //视频播放
-    public native void render(String input,Surface surface);
-    static{
+    public native void render(String input, Surface surface);
+
+    //音频解码
+    public native void decodeAudio(String input, String ouput);
+
+    static {
         System.loadLibrary("avutil-54");
         System.loadLibrary("swresample-1");
         System.loadLibrary("avcodec-56");

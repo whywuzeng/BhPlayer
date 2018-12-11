@@ -108,7 +108,7 @@ JNIEXPORT void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_render
     av_image_fill_arrays(RGBFrame->data,RGBFrame->linesize,buffer,AV_PIX_FMT_RGBA,avCodecContext->width,avCodecContext->height,1);
 
 
-    struct SwsContext *const pSwsContext = sws_getContext(avCodecContext->width, avCodecContext->height, avCodecContext->get_format
+    struct SwsContext *const pSwsContext = sws_getContext(avCodecContext->width, avCodecContext->height, avCodecContext->pix_fmt
                 , avCodecContext->width
                 , avCodecContext->height
                 , AV_PIX_FMT_RGBA
@@ -124,7 +124,7 @@ JNIEXPORT void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_render
     {
         if (packet.stream_index==videoStream)
         {
-            avcodec_decode_video2(avCodecContext,pFrame,&frameFinished,packet);
+            avcodec_decode_video2(avCodecContext,pFrame,&frameFinished,&packet);
 
             if (frameFinished){
                 ANativeWindow_lock(pWindow,&windowBuffer,0);

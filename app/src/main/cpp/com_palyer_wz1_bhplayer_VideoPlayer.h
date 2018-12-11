@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_render
   (JNIEnv *, jobject, jstring, jobject);
 
+/*
+ * Class:     com_palyer_wz1_bhplayer_VideoPlayer
+ * Method:    decodeAudio
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_decodeAudio
+  (JNIEnv *, jobject, jstring, jstring);
+
 #ifdef __cplusplus
 }
 #endif

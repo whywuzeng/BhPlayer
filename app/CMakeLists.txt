@@ -7,6 +7,8 @@ cmake_minimum_required(VERSION 3.4.1)
 
 #设置so的文件夹路径
 set(distribution_DIR ${CMAKE_SOURCE_DIR}/src/main/jniLibs/armeabi)
+#设置include路径
+set(distribution_INCLUDE ${CMAKE_SOURCE_DIR}/src/main/cpp)
 message(STATUS "wuzeng"+${distribution_DIR})
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -56,7 +58,7 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             src/main/cpp/native-lib.cpp src/main/cpp/ffmpegRender.c)
+             src/main/cpp/native-lib.cpp src/main/cpp/ffmpegRender.c src/main/cpp/FFmpegDecodeAudio.c)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -66,7 +68,7 @@ add_library( # Sets the name of the library.
 
 #加入头文件
 target_include_directories(native-lib PRIVATE
-                           ${distribution_DIR}/include
+                           ${distribution_INCLUDE}/include
                            )
 
 
