@@ -16,6 +16,12 @@ public class VideoPlayer {
     //音频解码
     public native void decodeAudio(String input, String ouput);
 
+    //测试test Pthread
+    public native void pThreadTest();
+
+    //音视频播放
+    public native void ccPlayStream(String input,Surface surface);
+
     static {
         System.loadLibrary("avutil-54");
         System.loadLibrary("swresample-1");

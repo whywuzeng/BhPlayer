@@ -48,7 +48,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         tv.setText(stringFromJNI());
         videoPlayer = new VideoPlayer();
         permissionsMethod();
-        audioDecoder();
+//        audioDecoder();
+        testpthread();
+    }
+
+    private void testpthread() {
+        videoPlayer.pThreadTest();
     }
 
     //音频解码

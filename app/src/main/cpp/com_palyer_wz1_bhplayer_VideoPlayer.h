@@ -23,6 +23,22 @@ JNIEXPORT void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_render
 JNIEXPORT void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_decodeAudio
   (JNIEnv *, jobject, jstring, jstring);
 
+/*
+ * Class:     com_palyer_wz1_bhplayer_VideoPlayer
+ * Method:    pThreadTest
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_pThreadTest
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_palyer_wz1_bhplayer_VideoPlayer
+ * Method:    ccPlayStream
+ * Signature: (Ljava/lang/String;Landroid/view/Surface;)V
+ */
+JNIEXPORT void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_ccPlayStream
+  (JNIEnv *, jobject, jstring, jobject);
+
 #ifdef __cplusplus
 }
 #endif
