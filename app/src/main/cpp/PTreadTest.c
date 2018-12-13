@@ -10,25 +10,25 @@
 
 struct testPthread
 {
-    pthread_mutex_t *mutex;
-    pthread_cond_t *cond;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
     Queue * queue;
 };
 
 typedef struct testPthread testPth;
 
-void pushInt(const Queue *pQueue, int value, pthread_mutex_t *mutex, pthread_cond_t *cond);
+void pushInt( Queue *pQueue, int value, pthread_mutex_t *mutex, pthread_cond_t *cond);
 
 void *myThread1(void* arg)
 {
     testPth *queue = (testPth *)arg;
 
     int i;
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 5; ++i) {
         printf("this is 1st myThread1.\n");
-        pthread_mutex_lock(queue->mutex);
-        pushInt(queue, i, queue->mutex, queue->cond);
-        pthread_mutex_unlock(queue->mutex);
+//        pthread_mutex_lock(&queue->mutex);
+        pushInt(queue->queue, i, &queue->mutex, &queue->cond);
+//        pthread_mutex_unlock(&queue->mutex);
         sleep(1);
     }
 
@@ -41,11 +41,11 @@ void *myThread2(void* arg)
 {
     testPth * queue = (testPth *)arg;
     int i;
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 5; ++i) {
         printf("this is 1st myThread2.\n");
-        pthread_mutex_lock(queue->mutex);
-        pushInt(queue, i, queue->mutex, queue->cond);
-        pthread_mutex_unlock(queue->mutex);
+//        pthread_mutex_lock(&queue->mutex);
+        pushInt(queue->queue, i, &queue->mutex, &queue->cond);
+//        pthread_mutex_unlock(&queue->mutex);
         sleep(1);
     }
 
@@ -55,10 +55,10 @@ void *myThread2(void* arg)
 
 
 JNIEXPORT void
-pushInt(const Queue *pQueue, int value, pthread_mutex_t *mutex, pthread_cond_t *cond) {
+pushInt( Queue *pQueue, int value, pthread_mutex_t *mutex, pthread_cond_t *cond) {
     pthread_mutex_lock(mutex);
 
-    queuePush(pQueue,value,mutex,cond,1);
+    queuePush(pQueue,value,mutex,cond,0);
 
     pthread_mutex_unlock(mutex);
 } void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_pThreadTest
@@ -68,8 +68,8 @@ pushInt(const Queue *pQueue, int value, pthread_mutex_t *mutex, pthread_cond_t *
     pthread_t pid1,pid2;
     testPth * test =(testPth*)malloc(sizeof(testPth));
 
-    pthread_mutex_init(test->mutex,NULL);
-    pthread_cond_init(test->cond,NULL);
+    pthread_mutex_init(&test->mutex,NULL);
+    pthread_cond_init(&test->cond,NULL);
 
     Queue * pQueue = createQueue();
 
@@ -94,8 +94,8 @@ pushInt(const Queue *pQueue, int value, pthread_mutex_t *mutex, pthread_cond_t *
     pthread_join(pid2,NULL);
 
 
-    pthread_mutex_destroy(test->mutex);
-    pthread_cond_destroy(test->cond);
+    pthread_mutex_destroy(&test->mutex);
+    pthread_cond_destroy(&test->cond);
 
     return;
 

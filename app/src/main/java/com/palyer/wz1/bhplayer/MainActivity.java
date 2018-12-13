@@ -42,15 +42,17 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         setContentView(R.layout.activity_main);
         surface=(SurfaceView)findViewById(R.id.surface);
         mHolder = surface.getHolder();
-//        mHolder.addCallback(this);
+        mHolder.addCallback(this);
         // Example of a call to a native method
         TextView tv = (TextView) findViewById(R.id.sample_text);
         tv.setText(stringFromJNI());
         videoPlayer = new VideoPlayer();
         permissionsMethod();
 //        audioDecoder();
-        testpthread();
+//        testpthread();
+
     }
+
 
     private void testpthread() {
         videoPlayer.pThreadTest();
@@ -103,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 }
                 String absolutePath = file.getAbsolutePath();
 
-                videoPlayer.render(absolutePath,surface);
+                videoPlayer.ccPlayStream(absolutePath,surface);
             }
         }).start();
     }

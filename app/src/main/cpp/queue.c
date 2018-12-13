@@ -36,9 +36,9 @@ Queue* createQueue(){
         printf("queue分配的内存空间不足");
         return NULL;
     }
+    queue->size=0;
     queue->front=-1;
     queue->rear=-1;
-    queue->size=0;
     return queue;
 }
 
@@ -112,6 +112,11 @@ void freeQueue(Queue* queue){
 void listQueue(Queue* queue)
 {
     int lenght= sizeof(queue->data)/ sizeof(ElementType);
+    LOG_ERR("queue front的为:%d",queue->front);
+    LOG_ERR("queue rear的为:%d",queue->rear);
+    LOG_ERR("queue size的为:%d",queue->size);
+
+    LOG_ERR("queue数组的长度为:%d",lenght);
     for (int i = 0; i < lenght; ++i) {
         printf("queue里的index:%d,value:%d",i,queue->data[i]);
     }

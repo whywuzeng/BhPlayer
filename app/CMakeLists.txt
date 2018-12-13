@@ -61,7 +61,6 @@ add_library( # Sets the name of the library.
              src/main/cpp/native-lib.cpp
              src/main/cpp/ffmpegRender.c
              src/main/cpp/FFmpegDecodeAudio.c
-             src/main/cpp/PTreadTest.c
              src/main/cpp/queue.c
              src/main/cpp/FFPlay.c
              )

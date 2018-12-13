@@ -7,7 +7,7 @@
 
 #include <libavcodec/avcodec.h>
 
-#define ElementType int
+#define ElementType AVPacket
 
 #define true 1
 #define false 0
@@ -21,5 +21,7 @@ void queuePush(Queue* queue,ElementType item,pthread_mutex_t *mutex,pthread_cond
 ElementType QueuePop(Queue* queue,pthread_mutex_t *mutex,pthread_cond_t *cond,int abort_request);
 
 void listQueue(Queue* queue);
+
+void freeQueue(Queue* queue);
 
 #endif //BHPLAYER_QUEUE_H
