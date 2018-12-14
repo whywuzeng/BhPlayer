@@ -119,13 +119,14 @@ JNIEXPORT void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_render
 
     int frameFinished;
     AVPacket packet;
-
+    int index=0;
     while (av_read_frame(pContext,&packet)>=0)
     {
+
+        LOG_ERR("数字的index:%d",index++);
         if (packet.stream_index==videoStream)
         {
             avcodec_decode_video2(avCodecContext,pFrame,&frameFinished,&packet);
-
             if (frameFinished){
                 ANativeWindow_lock(pWindow,&windowBuffer,0);
                 sws_scale(pSwsContext,(uint8_t const *const *)pFrame->data,pFrame->linesize,0,avCodecContext->height,RGBFrame->data,RGBFrame->linesize);

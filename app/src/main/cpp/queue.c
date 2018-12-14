@@ -44,7 +44,10 @@ Queue* createQueue(){
 
 //是否已满
 int isFull(Queue* q){
-    return q->size == MAX_SIZE;
+    LOG_ERR("q    %#x",q);
+    int i = q->size;
+    LOG_ERR("i    %d",i);
+    return (q->size == MAX_SIZE);
 }
 
 int isEmpty(Queue * q)
@@ -61,9 +64,9 @@ void queuePush(Queue* queue,ElementType item,pthread_mutex_t *mutex,pthread_cond
         ERR("abort_request");
         return;
     }
-
     if (!isFull(queue))
     {
+        ERR("2222222222222222");
         queue->rear++;
         queue->rear %=MAX_SIZE;
         queue->size++;
@@ -74,7 +77,6 @@ void queuePush(Queue* queue,ElementType item,pthread_mutex_t *mutex,pthread_cond
         ERR("队列已满");
         pthread_cond_wait(cond,mutex);
     }
-
   return;
 }
 

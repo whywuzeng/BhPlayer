@@ -142,18 +142,13 @@ void initCodecContext(Player *pPlayer, int index) {
 void prepareVideoDecode(Player *pPlayer, JNIEnv *env, jobject surface) {
 
     pPlayer->nativeWindow = ANativeWindow_fromSurface(env, surface);
-
     AVCodecContext *pContext = pPlayer->codecContexts[pPlayer->mVideoIndex];
     int videoWidth = pContext->width;
     int videoHeight = pContext->height;
 
-   pPlayer->pSwsContext=  sws_getContext(videoWidth, videoHeight, AV_PIX_FMT_RGBA,
-                                                    videoWidth, videoHeight, AV_PIX_FMT_RGBA,
+   pPlayer->pSwsContext=  sws_getContext( pContext->width, pContext->height, pContext->pix_fmt,
+                                          pContext->width, pContext->height, AV_PIX_FMT_RGBA,
                                                     SWS_BILINEAR, NULL, NULL, NULL);
-
-//    ANativeWindow_setBuffersGeometry(pWindow,videoWidth,videoHeight,WINDOW_FORMAT_RGBA_8888);
-//    ANativeWindow_Buffer buffer;
-//    av_read_frame(pPlayer->mformatContext,)
 }
 
 void prepareAudioDecode(Player *pPlayer) {
@@ -218,34 +213,46 @@ void *readStreamPackte(void *arg)
     int index =0 ;
     AVPacket packet;
 
-    while (true)
+    LOG_ERR("文件读packet结束的错误码 :%#x", (unsigned int)&packet);
+    LOG_ERR("文件读player->mformatContext结束的错误码 :%#x", (unsigned int)player->mformatContext);
+    while (av_read_frame(player->mformatContext,&packet)>=0)
     {
-
-        int ref=av_read_frame(player->mformatContext,&packet);
+//        int ref=av_read_frame(player->mformatContext,&packet);
+//        LOG_ERR("文件读av_read_frame结束的错误码 :%d", ref);
+//        if (ref<0)
+//        {
+//            LOG_ERR("文件读packet结束的错误码 :%d", ref);
+//            break;
+//        }
         LOG_ERR("readStreamPackte:%d", index++);
-        if (ref<0)
-        {
-            LOG_ERR("文件读packet结束的错误码 :%d", ref);
-            break;
-        }
-
+        LOG_ERR("packet.stream_index:%d", packet.stream_index);
+        LOG_ERR("player->mVideoIndex:%d", player->mVideoIndex);
         if (packet.stream_index == player->mVideoIndex)
         {
             pthread_mutex_lock(&player->mutex);
-            queuePush(player->queueData[packet.stream_index],packet,&player->mutex,&player->cond,0);
+            LOG_ERR("packet.stream_index :%d",packet.stream_index);
+            Queue *pQueue = player->queueData[packet.stream_index];
+            LOG_ERR("Queue *pQueue :%#x",pQueue);
+//            LOG_ERR("Queue *pQueue :%d",);
+            queuePush(pQueue,packet,&player->mutex,&player->cond,0);
             pthread_mutex_unlock(&player->mutex);
         }
     }
+
     return 0;
 }
 
 void *decodeVideo(void * arg)
 {
+    ERR("111111111111111");
     Player *player = (Player *)arg;
-
     int streamIndex = player->mVideoIndex;
+
+    int index =0 ;
     
     Queue *pQueue = player->queueData[player->mVideoIndex];
+    ERR("22222222222222");
+    LOG_ERR("文件读pQueue结束的错误码 :%#x", (unsigned int)pQueue);
 
     AVCodecContext *pContext = player->codecContexts[player->mVideoIndex];
 
@@ -253,10 +260,11 @@ void *decodeVideo(void * arg)
     int videoHeight = pContext->height;
 
     int numBytes2 = av_image_get_buffer_size(AV_PIX_FMT_RGBA, videoWidth, videoHeight, 1);
+    LOG_ERR("文件读numBytes2结束的错误码 :%d", numBytes2);
     uint8_t *buffer1 =  (uint8_t *)av_malloc(numBytes2 * sizeof(uint8_t));
-
+//    LOG_ERR("文件读buffer1结束的错误码 :%#x", buffer1);
     while (true) {
-
+        LOG_ERR("decodeVideo:%d", index++);
         pthread_mutex_lock(&player->mutex);
 
         AVPacket packet = QueuePop(pQueue, &player->mutex, &player->cond, 0);
@@ -336,15 +344,17 @@ JNIEXPORT  void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_ccPlayStream
     const int audioIndex = player->mAudioIndex;
     const int videoIndex = player->mVideoIndex;
     //封装格式上下文
-    initCodecContext(player, audioIndex);
+//    initCodecContext(player, audioIndex);
     initCodecContext(player, videoIndex);
 
     //准备视频解码
-    prepareVideoDecode(player, env, surface);
-    //准备音频解码
-    prepareAudioDecode(player);
+//    prepareVideoDecode(player, env, surface);
+//    //准备音频解码
+//    prepareAudioDecode(player);
+
+
     //jni 音频准备
-    jniPrepareAudio(env, player);
+//    jniPrepareAudio(env, player);
     //生成队列
     initQueue(player);
     //线程读流
@@ -353,8 +363,12 @@ JNIEXPORT  void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_ccPlayStream
 
     pthread_create(&(player->streamReadID), NULL, (void *) readStreamPackte, (void *) player);
 
+    pthread_t tid_1 = player->decodeStreamID[player->mVideoIndex];
+    LOG_ERR("1111111111---------------%#x",(unsigned int)&tid_1);
     sleep(1);
+//    ERR("11111111111--111111111");
     //消费者线程解码
+
     pthread_create(&(player->decodeStreamID[player->mVideoIndex]),NULL,(void *)decodeVideo,(void *)player);
 
     pthread_join((player->streamReadID),NULL);
@@ -369,6 +383,7 @@ JNIEXPORT  void JNICALL Java_com_palyer_wz1_bhplayer_VideoPlayer_ccPlayStream
     pthread_mutex_destroy(&player->mutex);
     //释放方法
     freeObjectMethod(player);
-
+    free(player);
     (*env)->ReleaseStringUTFChars(env,js,inCharPath);
+    return;
 }
